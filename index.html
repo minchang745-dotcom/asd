@@ -1,0 +1,2243 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>기강해이 경고장</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Nanum+Myeongjo:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #f1ebda;
+    --paper-dark: #e5ddc4;
+    --ink: #221f1a;
+    --ink-soft: #55503f;
+    --red: #b3261e;
+    --red-deep: #7d1a15;
+    --line: #c9bfa0;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    background: linear-gradient(180deg,#d8cfaf, #c4b98f);
+    font-family: 'Nanum Myeongjo', serif;
+    color: var(--ink);
+    display:flex;
+    justify-content:center;
+    min-height:100vh;
+  }
+  #app{
+    width:100%;
+    max-width:460px;
+    min-height:100vh;
+    background:
+      radial-gradient(ellipse at top left, rgba(0,0,0,0.04), transparent 60%),
+      var(--paper);
+    box-shadow: 0 0 40px rgba(0,0,0,0.35);
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    overflow:hidden;
+  }
+
+  /* ---------- header ---------- */
+  header{
+    padding:18px 20px 14px;
+    border-bottom:2px solid var(--ink);
+    position:relative;
+  }
+  .eyebrow{
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.14em;
+    color:var(--ink-soft);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .reset-btn{
+    font-family:'Space Mono', monospace;
+    font-size:10px;
+    background:none;
+    border:1px solid var(--ink-soft);
+    color:var(--ink-soft);
+    padding:3px 8px;
+    border-radius:2px;
+    cursor:pointer;
+    letter-spacing:0.05em;
+  }
+  .reset-btn:active{ background:var(--ink-soft); color:var(--paper); }
+  .eyebrow-btns{ display:flex; gap:6px; }
+  .notify-btn{
+    font-family:'Space Mono', monospace;
+    font-size:10px;
+    background:none;
+    border:1px solid var(--red-deep);
+    color:var(--red-deep);
+    padding:3px 8px;
+    border-radius:2px;
+    cursor:pointer;
+    letter-spacing:0.05em;
+  }
+  .notify-btn.on{ background:var(--red-deep); color:var(--paper); }
+  h1{
+    font-family:'Black Han Sans', sans-serif;
+    font-size:30px;
+    margin:6px 0 2px;
+    letter-spacing:0.02em;
+    color:var(--red-deep);
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.08);
+  }
+  .subtitle{
+    font-size:13px;
+    color:var(--ink-soft);
+    font-family:'Nanum Myeongjo', serif;
+  }
+
+  /* stamp */
+  .stamp{
+    position:absolute;
+    top:14px;
+    right:18px;
+    width:74px;
+    height:74px;
+    border:3px solid var(--red);
+    border-radius:50%;
+    color:var(--red);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    transform:rotate(-14deg);
+    font-family:'Space Mono', monospace;
+    opacity:0.9;
+    mix-blend-mode:multiply;
+    pointer-events:none;
+  }
+  .stamp .dday-num{ font-size:15px; font-weight:700; line-height:1; }
+  .stamp .dday-label{ font-size:8px; letter-spacing:0.08em; margin-top:2px; }
+
+  /* ---------- chat area ---------- */
+  #chat{
+    flex:1;
+    overflow-y:auto;
+    padding:18px 16px 8px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .msg{
+    max-width:82%;
+    font-size:14.5px;
+    line-height:1.55;
+    padding:10px 13px;
+    animation: rise 0.25s ease;
+  }
+  @keyframes rise{ from{ opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+  .msg.bot{
+    align-self:flex-start;
+    border-bottom:1px dotted var(--line);
+    border-left:3px solid var(--ink);
+    background:transparent;
+    padding-left:12px;
+    color:var(--ink);
+  }
+  .msg.bot .tag{
+    display:block;
+    font-family:'Space Mono', monospace;
+    font-size:10px;
+    color:var(--red-deep);
+    letter-spacing:0.08em;
+    margin-bottom:3px;
+  }
+  .msg.user{
+    align-self:flex-end;
+    background:var(--ink);
+    color:var(--paper);
+    border-radius:3px 3px 2px 12px;
+  }
+  .typing{
+    align-self:flex-start;
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+    padding-left:12px;
+  }
+
+  /* verdict card */
+  .verdict{
+    align-self:center;
+    width:100%;
+    border:2px solid var(--ink);
+    background:var(--paper-dark);
+    padding:16px 16px 14px;
+    position:relative;
+    margin:4px 0 8px;
+  }
+  .verdict::before{
+    content:'';
+    position:absolute; inset:6px;
+    border:1px solid var(--line);
+    pointer-events:none;
+  }
+  .verdict .v-title{
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+    letter-spacing:0.1em;
+  }
+  .verdict .v-grade{
+    font-family:'Black Han Sans', sans-serif;
+    font-size:26px;
+    color:var(--red);
+    margin:4px 0 8px;
+    animation: stampin 0.4s cubic-bezier(.2,1.4,.4,1);
+  }
+  @keyframes stampin{
+    0%{ opacity:0; transform:scale(1.6) rotate(-8deg); }
+    60%{ opacity:1; transform:scale(0.94) rotate(2deg); }
+    100%{ transform:scale(1) rotate(-2deg); }
+  }
+  .v-row{
+    display:flex; justify-content:space-between;
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    padding:4px 0;
+    border-top:1px dashed var(--line);
+  }
+  .v-row span:first-child{ color:var(--ink-soft); }
+  .v-row span:last-child{ font-weight:700; }
+
+  /* plan / task list */
+  .task-list{ margin:8px 0 4px; }
+  .task-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:6px 0;
+    border-top:1px dashed var(--line);
+    font-size:14px;
+    cursor:pointer;
+  }
+  .task-row input[type="checkbox"]{
+    width:16px; height:16px; accent-color: var(--red-deep); flex-shrink:0;
+  }
+  .task-row .done{ text-decoration:line-through; color:var(--ink-soft); }
+  .add-task-row{
+    display:flex; gap:6px; margin-top:10px;
+  }
+  .add-task-row input{
+    flex:1;
+    border:none;
+    border-bottom:1.5px dotted var(--ink-soft);
+    background:transparent;
+    font-family:'Nanum Myeongjo', serif;
+    font-size:13.5px;
+    padding:5px 2px;
+    color:var(--ink);
+  }
+  .add-task-row input:focus{ outline:none; border-bottom-color:var(--red); }
+  .add-task-row button{
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    background:none;
+    border:1px solid var(--ink);
+    padding:0 10px;
+    cursor:pointer;
+    color:var(--ink);
+  }
+  .add-task-row button:active{ background:var(--ink); color:var(--paper); }
+
+  /* quick replies */
+  #choices{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    padding:2px 16px 12px;
+  }
+  .choice-btn{
+    font-family:'Nanum Myeongjo', serif;
+    font-weight:700;
+    font-size:13.5px;
+    background:var(--paper);
+    border:1.5px solid var(--ink);
+    padding:8px 12px;
+    cursor:pointer;
+    color:var(--ink);
+  }
+  .choice-btn:active{ background:var(--ink); color:var(--paper); }
+
+  /* input row */
+  #categoryBar{
+    display:flex;
+    gap:6px;
+    padding:8px 14px 0;
+    flex-wrap:wrap;
+  }
+  .cat-btn{
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    background:var(--paper-dark);
+    border:1.5px solid var(--ink-soft);
+    color:var(--ink-soft);
+    padding:5px 10px;
+    border-radius:3px;
+    cursor:pointer;
+  }
+  .cat-btn.active{
+    background:var(--red-deep);
+    border-color:var(--red-deep);
+    color:var(--paper);
+    font-weight:700;
+  }
+  .cat-btn.cat-clear{
+    margin-left:auto;
+    padding:5px 9px;
+    color:var(--ink-soft);
+    border-style:dashed;
+  }
+  #inputRow{
+    display:flex;
+    gap:8px;
+    padding:10px 14px 16px;
+    border-top:2px solid var(--ink);
+  }
+  #textInput{
+    flex:1;
+    border:none;
+    border-bottom:2px dotted var(--ink-soft);
+    background:transparent;
+    font-family:'Nanum Myeongjo', serif;
+    font-size:14.5px;
+    padding:8px 4px;
+    color:var(--ink);
+  }
+  #textInput:focus{ outline:none; border-bottom-color:var(--red); }
+  #sendBtn{
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    background:var(--red-deep);
+    color:var(--paper);
+    border:none;
+    padding:0 16px;
+    cursor:pointer;
+    letter-spacing:0.05em;
+  }
+  #sendBtn:active{ background:var(--red); }
+  #inputRow.hidden{ display:none; }
+
+  /* ---------- tabs ---------- */
+  .view-tabs{
+    display:flex;
+    border-bottom:2px solid var(--ink);
+  }
+  .tab-btn{
+    flex:1;
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.05em;
+    background:var(--paper-dark);
+    border:none;
+    border-right:1px solid var(--line);
+    padding:10px 0;
+    cursor:pointer;
+    color:var(--ink-soft);
+  }
+  .tab-btn:last-child{ border-right:none; }
+  .tab-btn.active{
+    background:var(--paper);
+    color:var(--red-deep);
+    font-weight:700;
+    box-shadow: inset 0 -2px 0 var(--red-deep);
+  }
+  .view-hidden{ display:none !important; }
+  #chatView{ display:flex; flex-direction:column; flex:1; min-height:0; }
+
+  /* ---------- manager view ---------- */
+  #managerView{
+    flex:1;
+    overflow-y:auto;
+    padding:16px;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+  .mgr-section{
+    border:1.5px solid var(--ink);
+    background:var(--paper-dark);
+    padding:12px 14px;
+    position:relative;
+  }
+  .mgr-title{
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.08em;
+    color:var(--ink-soft);
+    margin-bottom:8px;
+  }
+  .mgr-streak-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .mgr-streak{
+    font-family:'Black Han Sans', sans-serif;
+    font-size:18px;
+    color:var(--red-deep);
+  }
+  .mgr-streak span{ font-size:26px; }
+  .mgr-dday{
+    font-family:'Space Mono', monospace;
+    font-size:14px;
+    color:var(--ink-soft);
+  }
+  .mgr-hourrow, .mgr-taskadd{
+    display:flex;
+    gap:8px;
+  }
+  .mgr-hourrow input, .mgr-taskadd input{
+    flex:1;
+    border:none;
+    border-bottom:2px dotted var(--ink-soft);
+    background:transparent;
+    font-family:'Nanum Myeongjo', serif;
+    font-size:14.5px;
+    padding:6px 2px;
+    color:var(--ink);
+  }
+  .mgr-hourrow input:focus, .mgr-taskadd input:focus{ outline:none; border-bottom-color:var(--red); }
+  .mgr-btn{
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    background:var(--red-deep);
+    color:var(--paper);
+    border:none;
+    padding:0 14px;
+    cursor:pointer;
+  }
+  .mgr-btn:active{ background:var(--red); }
+  #managerFeedback{
+    margin-top:10px;
+    font-size:13.5px;
+    line-height:1.5;
+    color:var(--ink);
+    border-top:1px dashed var(--line);
+    padding-top:8px;
+  }
+  #managerFeedback:empty{ display:none; }
+  #achievementFeedback{
+    margin-top:10px;
+    font-size:13.5px;
+    line-height:1.5;
+    color:var(--ink);
+    border-top:1px dashed var(--line);
+    padding-top:8px;
+  }
+  #achievementFeedback:empty{ display:none; }
+
+  #taskList{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; }
+  #taskList li{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:14px;
+    border-bottom:1px dotted var(--line);
+    padding:4px 0;
+  }
+  #taskList li.done span.task-text{ text-decoration:line-through; color:var(--ink-soft); }
+  #taskList li span.task-text{ flex:1; }
+  #taskList li button{
+    background:none; border:none; color:var(--red-deep); cursor:pointer; font-size:13px;
+  }
+
+  #historyList{ display:flex; flex-direction:column; gap:4px; }
+  .hist-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-family:'Space Mono', monospace;
+    font-size:11.5px;
+    color:var(--ink-soft);
+  }
+  .hist-row .hist-date{ width:52px; flex-shrink:0; }
+  .hist-row .hist-bar{
+    height:8px;
+    background:var(--red-deep);
+    flex-shrink:0;
+  }
+  .hist-row .hist-val{ margin-left:4px; }
+  .hist-row .hist-comment{
+    margin-left:auto;
+    color:var(--red-deep);
+    font-size:10.5px;
+    white-space:nowrap;
+  }
+
+  /* ---------- subject palette ---------- */
+  .subject-palette{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px; }
+  .subject-chip{
+    padding:6px 8px 6px 11px;
+    font-size:12.5px;
+    font-family:'Space Mono', monospace;
+    color:#fff;
+    border-radius:3px;
+    cursor:grab;
+    user-select:none;
+    touch-action:none;
+    white-space:nowrap;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+  }
+  .subject-chip:active{ cursor:grabbing; }
+  .subject-chip .subj-del{
+    font-size:10px;
+    opacity:0.85;
+    cursor:pointer;
+    padding:2px 3px;
+  }
+  .subject-chip .subj-del:hover{ opacity:1; }
+  .mgr-hint{
+    font-size:11px;
+    color:var(--ink-soft);
+    line-height:1.5;
+  }
+  .subject-empty{
+    font-size:12px;
+    color:var(--ink-soft);
+    font-family:'Space Mono', monospace;
+  }
+
+  /* ---------- calendar ---------- */
+  .cal-section{ padding-bottom:8px; }
+  .cal-scroll{
+    max-height:440px;
+    overflow-y:auto;
+    overflow-x:hidden;
+    border:1.5px solid var(--ink);
+    background:var(--paper);
+  }
+  .cal-grid{
+    display:grid;
+    grid-template-columns: 30px repeat(7, 1fr);
+    grid-template-rows: 40px repeat(24, 22px);
+    position:relative;
+  }
+  .cal-corner{
+    grid-column:1; grid-row:1;
+    position:sticky; top:0; left:0; z-index:4;
+    background:var(--paper);
+    border-bottom:1px solid var(--ink);
+  }
+  .cal-daylabel{
+    grid-row:1;
+    font-family:'Space Mono', monospace;
+    font-size:9.5px;
+    text-align:center;
+    padding-top:4px;
+    border-bottom:1px solid var(--ink);
+    border-left:1px solid var(--line);
+    position:sticky; top:0; z-index:3;
+    background:var(--paper);
+    line-height:1.3;
+  }
+  .cal-daylabel.today{ color:var(--red-deep); font-weight:700; }
+  .cal-daylabel .cal-daystat{
+    display:block;
+    font-size:7.5px;
+    color:var(--ink-soft);
+    font-weight:400;
+  }
+  .hour-label{
+    grid-column:1;
+    font-family:'Space Mono', monospace;
+    font-size:8.5px;
+    color:var(--ink-soft);
+    text-align:right;
+    padding-right:3px;
+    border-top:1px solid var(--line);
+    position:sticky; left:0; z-index:2;
+    background:var(--paper);
+  }
+  .cal-cell{
+    border-top:1px solid var(--line);
+    border-left:1px solid var(--line);
+  }
+  .cal-cell.today-col{ background:rgba(179,38,30,0.06); }
+  .cal-cell.drop-hover{ background:rgba(179,38,30,0.12); }
+  .cal-block{
+    border-radius:3px;
+    padding:2px 5px 3px;
+    font-size:10px;
+    line-height:1.25;
+    color:#fff;
+    overflow:hidden;
+    position:relative;
+    cursor:grab;
+    z-index:3;
+    touch-action:none;
+  }
+  .cal-block .del-x{
+    position:absolute; top:0; right:3px;
+    font-size:10px;
+    cursor:pointer;
+    opacity:0.85;
+  }
+  .cal-block .resize-handle{
+    position:absolute; left:0; right:0; bottom:0;
+    height:8px;
+    cursor:ns-resize;
+  }
+  .drag-ghost{
+    position:fixed;
+    pointer-events:none;
+    z-index:999;
+    opacity:0.85;
+    border-radius:3px;
+    color:#fff;
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    padding:5px 9px;
+  }
+
+  /* ---------- special events ---------- */
+  #specialList{ display:flex; flex-direction:column; gap:6px; margin-bottom:10px; }
+  .special-row{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    font-size:13px;
+    border-bottom:1px dotted var(--line);
+    padding:4px 0;
+  }
+  .special-row .sp-date{
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    color:var(--red-deep);
+    flex-shrink:0;
+  }
+  .special-row .sp-text{ flex:1; }
+  .special-row .sp-del{
+    background:none; border:none; color:var(--ink-soft); cursor:pointer; font-size:12px;
+  }
+  .special-empty{ font-size:12px; color:var(--ink-soft); font-family:'Space Mono', monospace; }
+  .special-add{ margin-top:4px; }
+  .special-add input[type="date"]{
+    border:none;
+    border-bottom:2px dotted var(--ink-soft);
+    background:transparent;
+    font-family:'Space Mono', monospace;
+    font-size:12.5px;
+    padding:6px 2px;
+    color:var(--ink);
+    flex-shrink:0;
+  }
+
+  ::-webkit-scrollbar{ width:5px; }
+  ::-webkit-scrollbar-thumb{ background:var(--line); }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="eyebrow">
+      <span>생활지도부 발행 · 기강해이 자가진단</span>
+      <span class="eyebrow-btns">
+        <button class="notify-btn" id="notifyBtn" onclick="enableMorningNotify()">🔔 알림</button>
+        <button class="reset-btn" onclick="restart()">재진단</button>
+      </span>
+    </div>
+    <h1>경고장</h1>
+    <div class="subtitle">내신 끝났다고 끝난 거 아니다</div>
+    <div class="stamp">
+      <div class="dday-num" id="stampDday">D-0</div>
+      <div class="dday-label">수능</div>
+    </div>
+  </header>
+
+  <div class="view-tabs">
+    <button class="tab-btn active" id="tabChat" onclick="switchView('chat')">경고장</button>
+    <button class="tab-btn" id="tabManager" onclick="switchView('manager')">오늘 관리</button>
+  </div>
+
+  <div id="chatView">
+    <div id="chat"></div>
+    <div id="choices"></div>
+
+    <div id="categoryBar">
+      <button class="cat-btn" data-cat="schedule" onclick="setCategory('schedule')">일정</button>
+      <button class="cat-btn" data-cat="plan" onclick="setCategory('plan')">공부계획</button>
+      <button class="cat-btn" data-cat="task" onclick="setCategory('task')">할일</button>
+      <button class="cat-btn" data-cat="report" onclick="setCategory('report')">성과보고</button>
+      <button class="cat-btn cat-clear" data-cat="" onclick="setCategory(null)">✕</button>
+    </div>
+
+    <div id="inputRow">
+      <input id="textInput" type="text" placeholder="편하게 말씀해주세요" autocomplete="off">
+      <button id="sendBtn" onclick="sendFreeText()">전송</button>
+    </div>
+  </div>
+
+  <div id="managerView" class="view-hidden">
+    <div class="mgr-section">
+      <div class="mgr-streak-row">
+        <div class="mgr-streak"><span id="streakNum">0</span>일째 기록 중</div>
+        <div class="mgr-dday" id="mgrDday">D-0</div>
+      </div>
+    </div>
+
+    <div class="mgr-section">
+      <div class="mgr-title">과목 팔레트 · 경고장에서 "수학 2시간"처럼 말하면 여기 추가됨</div>
+      <div class="subject-palette" id="subjectPalette"></div>
+      <div class="mgr-hint">과목 칩을 눌러서 아래 캘린더 칸으로 드래그(또는 터치 드래그)하면 배치돼. 배치된 블록은 아래쪽 모서리를 끌면 시간이 늘어나고, 블록 자체를 끌면 다른 시간/요일로 옮길 수 있어.</div>
+    </div>
+
+    <div class="mgr-section cal-section">
+      <div class="mgr-title">이번 주 캘린더</div>
+      <div class="cal-scroll" id="calScroll">
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+    </div>
+
+    <div class="mgr-section">
+      <div class="mgr-title">특별 일정 · 경고장에서 "7월15일 모의고사"처럼 말하면 여기 추가됨</div>
+      <div id="specialList"></div>
+    </div>
+
+    <div class="mgr-section">
+      <div class="mgr-title">오늘 순공부시간 · 경고장에서 "오늘 5시간 공부했어요"처럼 말하면 기록됨</div>
+      <div id="todayStatBox"></div>
+      <div id="managerFeedback"></div>
+    </div>
+
+    <div class="mgr-section">
+      <div class="mgr-title">오늘 할 일 · 경고장에서 "할 일 추가: OOO"처럼 말하면 등록됨</div>
+      <ul id="taskList"></ul>
+    </div>
+
+    <div class="mgr-section">
+      <div class="mgr-title">최근 7일 기록</div>
+      <div id="historyList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------------- 화면에 바로 에러 보여주기 (모바일 디버깅용) ---------------- */
+window.addEventListener('error', function(e){
+  showOnScreenError(`${e.message}\n(${e.filename ? e.filename.split('/').pop() : ''}:${e.lineno || '?'})`);
+});
+window.addEventListener('unhandledrejection', function(e){
+  showOnScreenError(`Promise 에러: ${e.reason && e.reason.message ? e.reason.message : e.reason}`);
+});
+function showOnScreenError(msg){
+  try{
+    let box = document.getElementById('onScreenError');
+    if(!box){
+      box = document.createElement('div');
+      box.id = 'onScreenError';
+      box.style.cssText = 'position:fixed;bottom:0;left:0;right:0;max-height:40vh;overflow:auto;background:#2a0000;color:#ffd9d9;font-family:monospace;font-size:11px;padding:10px;z-index:99999;white-space:pre-wrap;border-top:3px solid red;';
+      document.body.appendChild(box);
+    }
+    const line = document.createElement('div');
+    line.style.cssText = 'border-bottom:1px dashed #663;padding:4px 0;';
+    line.textContent = `[에러] ${msg}`;
+    box.appendChild(line);
+  }catch(err){}
+}
+
+/* =================================================================
+   서버 연동 설정 (Plan A: Supabase)
+   ------------------------------------------------------------------
+   아래 3개 값을 Supabase 프로젝트 생성 후 채워넣으면 서버 동기화와
+   진짜 백그라운드 푸시 알림이 켜짐. 비워둔 상태(placeholder)에서는
+   지금까지와 완전히 동일하게 localStorage로만 동작하니 안심하고
+   먼저 이 파일부터 배포해도 됨.
+
+   1. SUPABASE_URL       : 프로젝트 설정 > API > Project URL
+   2. SUPABASE_ANON_KEY  : 프로젝트 설정 > API > anon public key
+   3. VAPID_PUBLIC_KEY   : Web Push용 VAPID 키 쌍 중 공개키
+                           (Edge Function/서버 쪽에 개인키를 별도 보관)
+================================================================= */
+const SUPABASE_URL = 'https://pumrlqbanuhyphvxsiko.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_yGunun15PzIpMRzbl_rsxg_NLyaVfwD';
+const VAPID_PUBLIC_KEY = 'BOWvnDuD7-FyLZrgG1ZK03QxXq0ZwEkChRDiSbbtx4HxfUWPB6nV73ln9XnYNArch9SLYdAf8L6NHjj6TAnysTY';
+
+function isServerConfigured(){
+  return SUPABASE_URL.startsWith('http') && SUPABASE_ANON_KEY.length > 20;
+}
+
+/* ---------------- 익명 사용자 ID ---------------- */
+// 로그인 없이도 "이 브라우저 = 이 사람"을 구분하기 위한 UUID.
+// 한 번 생성되면 이 브라우저에 계속 남아있음 (localStorage 특성상 앱 재설치/브라우저 변경 시 새로 생성됨).
+const USER_ID_KEY = 'gyeonggojang_anon_user_id';
+function getUserId(){
+  let id = localStorage.getItem(USER_ID_KEY);
+  if(!id){
+    id = (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    localStorage.setItem(USER_ID_KEY, id);
+  }
+  return id;
+}
+const ANON_USER_ID = getUserId();
+
+/* ---------------- 서버 동기화 (best-effort, 실패해도 로컬 기능엔 영향 없음) ---------------- */
+// saveMgr() 호출될 때마다 백그라운드로 시도. 서버 설정 안 돼있으면 그냥 조용히 스킵.
+async function syncStateToServer(state){
+  if(!isServerConfigured()) return;
+  try{
+    await fetch(`${SUPABASE_URL}/rest/v1/user_states?on_conflict=user_id`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Prefer': 'resolution=merge-duplicates',
+      },
+      body: JSON.stringify({
+        user_id: ANON_USER_ID,
+        subjects: state.subjects,
+        blocks: state.blocks,
+        special_events: state.specialEvents,
+        logs: state.logs,
+        updated_at: new Date().toISOString(),
+      }),
+    });
+  }catch(e){
+    // 서버 연결 실패는 조용히 무시 - 로컬 저장은 이미 끝난 상태라 사용자 경험엔 영향 없음
+    console.warn('서버 동기화 실패 (로컬 저장은 정상):', e);
+  }
+}
+
+/* ---------------- Web Push 구독 (서버 설정 완료 후 동작) ---------------- */
+function urlBase64ToUint8Array(base64String){
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for(let i = 0; i < rawData.length; i++) outputArray[i] = rawData.charCodeAt(i);
+  return outputArray;
+}
+
+async function registerPushSubscription(){
+  if(!isServerConfigured()){
+    console.log('서버 미설정 상태 - 푸시 구독은 SUPABASE_URL/ANON_KEY/VAPID_PUBLIC_KEY 채운 뒤 자동으로 시도됨.');
+    return;
+  }
+  if(!('serviceWorker' in navigator) || !('PushManager' in window)){
+    console.warn('이 브라우저는 Web Push를 지원하지 않음.');
+    return;
+  }
+  try{
+    const reg = await navigator.serviceWorker.register('./service-worker.js');
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+    });
+    await fetch(`${SUPABASE_URL}/rest/v1/push_subscriptions?on_conflict=user_id`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Prefer': 'resolution=merge-duplicates',
+      },
+      body: JSON.stringify({
+        user_id: ANON_USER_ID,
+        subscription: sub,
+        updated_at: new Date().toISOString(),
+      }),
+    });
+    console.log('푸시 구독 완료, 서버에 등록됨.');
+  }catch(e){
+    console.warn('푸시 구독 실패:', e);
+  }
+}
+
+/* ---------------- D-day ---------------- */
+const SUNEUNG = new Date(2026, 10, 19); // 2027학년도 수능: 2026-11-19
+function getDday(){
+  const now = new Date();
+  const a = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const diff = Math.ceil((SUNEUNG - a) / 86400000);
+  return diff;
+}
+const DDAY = getDday();
+document.getElementById('stampDday').textContent = DDAY > 0 ? ('D-' + DDAY) : (DDAY === 0 ? 'D-DAY' : '종료');
+
+/* ---------------- 상태 ---------------- */
+let answers = {};
+let stepIndex = 0;
+let freeChatMode = false;
+
+const chatEl = document.getElementById('chat');
+const choicesEl = document.getElementById('choices');
+const inputRow = document.getElementById('inputRow');
+const textInput = document.getElementById('textInput');
+
+/* ---------------- 질문 정의 ---------------- */
+const QUESTIONS = [
+  {
+    key:'studyHours',
+    bot:`요즘 하루 순공부시간부터 여쭤볼게요. 폰 만지작거리는 시간 말고, 정말 앉아서 문제 푸신 시간으로요.`,
+    options:[
+      {label:'0~2시간', value:'0-2', score:32, mid:1},
+      {label:'2~4시간', value:'2-4', score:22, mid:3},
+      {label:'4~6시간', value:'4-6', score:10, mid:5},
+      {label:'6시간 이상', value:'6+', score:0, mid:7},
+    ]
+  },
+  {
+    key:'phone',
+    bot:`내신 끝나고 하루 스마트폰 사용시간(공부 앱 제외), 스크린타임 확인하시고 솔직하게 골라주시겠어요?`,
+    options:[
+      {label:'1시간 이내', value:'low', score:0},
+      {label:'1~3시간', value:'mid', score:10},
+      {label:'3~5시간', value:'high', score:20},
+      {label:'5시간 이상', value:'over', score:30},
+    ]
+  },
+  {
+    key:'gap',
+    bot:`목표 대학·학과 기준으로, 지금 등급과 목표 등급 사이 차이가 어느 정도인가요?`,
+    options:[
+      {label:'이미 도달함', value:'0', score:0},
+      {label:'1등급 차이', value:'1', score:12},
+      {label:'2등급 이상 차이', value:'2', score:24},
+      {label:'솔직히 모르겠음', value:'unknown', score:18},
+    ]
+  },
+  {
+    key:'plan',
+    bot:`이번 주 계획, 세우신 대로 잘 지켜지고 계신가요?`,
+    options:[
+      {label:'거의 다 지킴', value:'most', score:2},
+      {label:'절반 정도', value:'half', score:14},
+      {label:'거의 안 지킴', value:'rarely', score:24},
+      {label:'계획을 안 세움', value:'none', score:28},
+    ]
+  },
+  {
+    key:'looseAfterExam',
+    bot:`솔직히 여쭤볼게요. 내신 끝나고 나서 학습량이 확 줄었다고 생각하시나요?`,
+    options:[
+      {label:'맞음, 확실히 줄었음', value:'yes', score:16},
+      {label:'아니, 그대로임', value:'no', score:0},
+    ]
+  },
+];
+
+/* ---------------- 유틸 ---------------- */
+function scrollBottom(){ chatEl.scrollTop = chatEl.scrollHeight; }
+
+function pushMessage(role, html, tag){
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  if(role === 'bot' && tag){
+    div.innerHTML = `<span class="tag">${tag}</span>${html}`;
+  } else {
+    div.innerHTML = html;
+  }
+  chatEl.appendChild(div);
+  scrollBottom();
+}
+
+function showTyping(cb, delay){
+  const t = document.createElement('div');
+  t.className = 'typing';
+  t.textContent = '생활지도부 입력 중...';
+  chatEl.appendChild(t);
+  scrollBottom();
+  setTimeout(()=>{
+    t.remove();
+    cb();
+  }, delay || 500);
+}
+
+function clearChoices(){ choicesEl.innerHTML = ''; }
+
+/* ---------------- 진단 플로우 ---------------- */
+function askQuestion(i){
+  const q = QUESTIONS[i];
+  clearChoices();
+  showTyping(()=>{
+    pushMessage('bot', q.bot, `Q${i+1}/${QUESTIONS.length}`);
+    q.options.forEach(opt=>{
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.textContent = opt.label;
+      btn.onclick = ()=> answerQuestion(i, opt);
+      choicesEl.appendChild(btn);
+    });
+  });
+}
+
+const STUDY_HOURS_PRAISE = [
+  `이 정도면 정말 잘하고 계시네요. 이 페이스만 유지해주시면 좋겠습니다.`,
+  `생각보다 꽤 하고 계셨네요. 솔직히 조금 놀랐습니다.`,
+  `이 정도 시간이면 인정할 만하네요. 계속 이렇게 가주세요.`,
+];
+const STUDY_HOURS_PITY = [
+  `이 정도라니... 솔직히 조금 안쓰럽네요. 많이 힘드셨나 봐요.`,
+  `시간이 이거밖에 안 되신다니, 마음이 편치가 않네요.`,
+  `이 정도면... 걱정이 좀 되네요. 괜찮으신 거 맞으시죠?`,
+];
+
+function answerQuestion(i, opt){
+  pushMessage('user', opt.label);
+  clearChoices();
+  answers[QUESTIONS[i].key] = opt;
+  stepIndex = i + 1;
+
+  const reaction = getStudyHoursReaction(QUESTIONS[i].key, opt.value);
+  if(reaction){
+    showTyping(()=>{
+      pushMessage('bot', reaction, '반응');
+      advanceAfterAnswer();
+    }, 400);
+  } else {
+    advanceAfterAnswer();
+  }
+}
+
+function getStudyHoursReaction(key, value){
+  if(key !== 'studyHours') return null;
+  if(value === '6+') return STUDY_HOURS_PRAISE[Math.floor(Math.random()*STUDY_HOURS_PRAISE.length)];
+  if(value === '0-2') return STUDY_HOURS_PITY[Math.floor(Math.random()*STUDY_HOURS_PITY.length)];
+  return null;
+}
+
+function advanceAfterAnswer(){
+  if(stepIndex < QUESTIONS.length){
+    askQuestion(stepIndex);
+  } else {
+    showTyping(()=> renderVerdict(), 700);
+  }
+}
+
+/* ---------------- 판정 계산 ---------------- */
+function computeVerdict(){
+  let score = 0;
+  QUESTIONS.forEach(q=>{ score += answers[q.key].score; });
+  score = Math.min(100, score);
+
+  let grade, gradeColorNote;
+  if(score <= 20){ grade = '경미'; }
+  else if(score <= 45){ grade = '주의'; }
+  else if(score <= 70){ grade = '위험'; }
+  else { grade = '심각'; }
+
+  // 필요 공부시간 추정 (갭 기준)
+  const gapTarget = { '0':6, '1':8, '2':10, 'unknown':7 };
+  const target = gapTarget[answers.gap.value];
+  const actual = answers.studyHours.mid;
+  const deficit = Math.max(0, target - actual);
+
+  return { score, grade, target, actual, deficit };
+}
+
+function renderVerdict(){
+  const v = computeVerdict();
+  const card = document.createElement('div');
+  card.className = 'msg verdict';
+  card.innerHTML = `
+    <div class="v-title">진단 결과 · ${DDAY > 0 ? 'D-' + DDAY : 'D-DAY'}</div>
+    <div class="v-grade">기강해이 등급 : ${v.grade}</div>
+    <div class="v-row"><span>위험 점수</span><span>${v.score} / 100</span></div>
+    <div class="v-row"><span>목표 대비 필요 공부시간</span><span>하루 ${v.target}시간</span></div>
+    <div class="v-row"><span>현재 실제 공부시간</span><span>하루 약 ${v.actual}시간</span></div>
+    <div class="v-row"><span>하루 부족분</span><span>${v.deficit > 0 ? v.deficit + '시간' : '없음'}</span></div>
+  `;
+  chatEl.appendChild(card);
+  scrollBottom();
+
+  showTyping(()=>{
+    ROAST_LINES[v.grade].forEach((line, idx)=>{
+      setTimeout(()=>{
+        pushMessage('bot', fillTemplate(line, v), '경고');
+      }, idx*450);
+    });
+    setTimeout(()=>{
+      pushMessage('bot', `이제 하고 싶으신 말씀 있으면 편하게 해주세요. 다만 각오는 하고 계세요.`, '자유대화 시작');
+      enableFreeChat();
+    }, ROAST_LINES[v.grade].length*450 + 300);
+  }, 500);
+}
+
+function fillTemplate(str, v){
+  return str
+    .replace('{DDAY}', DDAY)
+    .replace('{DEFICIT}', v.deficit)
+    .replace('{TARGET}', v.target)
+    .replace('{ACTUAL}', v.actual);
+}
+
+/* ---------------- 팩폭 대사 은행 ---------------- */
+const ROAST_LINES = {
+  '경미': [
+    `지금 페이스는 나쁘지 않네요. 그래도 D-{DDAY}일 남았다는 거, 잊지는 않으셨으면 좋겠어요.`,
+    `잘하고 계신 것 같아 다행입니다. 다만 방심은 상위권일수록 더 무섭게 온다는 것도 기억해주세요.`,
+    `크게 걱정할 정도는 아니네요. 그래도 남은 D-{DDAY}일 동안 긴장은 놓지 마세요.`,
+    `지금 정도면 준수합니다. 다만 '이 정도면 됐다'는 생각이 제일 위험한 신호라는 것도 알아두세요.`,
+  ],
+  '주의': [
+    `D-{DDAY}일 남으셨는데, 지금 페이스라면 딱 이 등급에서 머무르실 것 같은데요.`,
+    `하루 {DEFICIT}시간 정도 비어 보이네요. 이게 3주만 쌓이면 등급 하나는 가볍게 내려갈 수 있습니다.`,
+    `내신 끝나고 좀 풀어지신 것 같은데, 티가 좀 나네요. 지금이 진짜 중요한 시기라는 거 알고 계시죠?`,
+    `지금 페이스, 나쁘진 않은데 딱히 좋지도 않네요. 애매한 게 제일 아쉬운 겁니다.`,
+    `이대로면 오르지도, 그렇다고 크게 떨어지지도 않으실 것 같아요. 그게 문제 아닐까요?`,
+  ],
+  '위험': [
+    `이대로 가시면 목표하신 학과는 조금 어려울 수도 있겠네요. 돌려 말씀드리진 않을게요.`,
+    `하루 {DEFICIT}시간씩 비는 거, 다른 분들은 이미 채우고 계신 것 같은데요.`,
+    `내신 끝나고 풀어지신 거, 맞으시죠? 그 몇 주가 수능 성적표에 고스란히 남는다는 것만 말씀드리겠습니다.`,
+    `지금 페이스로는 원하시는 결과, 솔직히 나오기 힘들 것 같습니다.`,
+    `계획과 실제 사이에 간격이 꽤 크네요. 이 정도면 슬슬 불안하실 때도 된 것 같은데요.`,
+  ],
+  '심각': [
+    `D-{DDAY}일 남았는데 지금 이 상태라면, 재수도 염두에 두셔야 할 것 같은데요.`,
+    `핑계 대실 시간에 문제 하나 더 푸시는 게 나을 것 같습니다. 시간은 기다려주지 않으니까요.`,
+    `지금 이 흐름을 못 끊으시면, 나중에 지금의 자신을 원망하실 수도 있을 것 같아요.`,
+    `이 정도면 그냥 시간을 흘려보내고 계신 것 같은데요. 마음은 급하신데 몸이 안 따라가시나 봐요.`,
+    `솔직히 지금 상태로는, 목표를 다시 낮게 잡으셔야 할지도 모르겠네요.`,
+  ],
+};
+
+/* ---------------- 자유 채팅 (규칙 기반) ---------------- */
+const KEYWORD_RESPONSES = [
+  { kws:['힘들','지쳐','피곤','번아웃'], lines:[
+      `힘드신 거 이해합니다. 잠깐 쉬었다가 다시 앉아보세요.`,
+      `지금 힘드신 거 당연합니다. 쉬는 것도 계획 안에서 쉬시면 좋을 것 같아요.`,
+      `많이 힘드셨나 봐요. 그래도 오늘 할 만큼은 마무리해보시죠.`,
+      `지치신 거 알겠는데, 지금 멈추면 지친 채로 끝나는 겁니다.`,
+    ]},
+  { kws:['포기','그만','안될','못할','안돼'], lines:[
+      `그런 생각 드실 수 있어요. 그래도 오늘 하나만 더 해보시는 건 어떨까요.`,
+      `그만두고 싶으신 거, 지금이 제일 힘든 순간이라서 그런 걸 텐데요. 넘기시면 좀 나아질 겁니다.`,
+      `힘드시겠지만, 여기서 멈추기엔 아쉬운 것 같아요.`,
+    ]},
+  { kws:['놀','게임','유튜브','폰','틱톡','인스타'], lines:[
+      `잠깐 쉬시는 거야 좋죠. 대신 시간은 정해두고 보세요.`,
+      `그것도 좋은데, D-{DDAY}일인 건 알고 계시죠?`,
+      `너무 오래는 마시고, 적당히 보고 다시 앉아주세요.`,
+    ]},
+  { kws:['곧','조금만','이따','내일부터','다음주부터'], lines:[
+      `네, 알겠습니다. 그럼 그때는 꼭 시작해주세요.`,
+      `좋아요. 대신 이번엔 진짜 그때 시작하시는 거예요.`,
+      `'다음부터'라는 말씀, 이번엔 지켜지면 좋겠네요.`,
+    ]},
+  { kws:['할거야','할게','해야지','열심히','다시'], lines:[
+      `좋습니다. 오늘 목표 하나 정해서 지금 바로 시작해보세요.`,
+      `그 말씀 믿어보겠습니다. 오늘 안에 결과로 보여주시면 좋겠네요.`,
+      `다시 시작하신다니 다행입니다. 이번엔 오래 가시면 좋겠어요.`,
+    ]},
+  { kws:['등급','점수','모고','성적'], lines:[
+      `점수는 오늘 푸신 문제 수만큼 따라올 거예요.`,
+      `등급 신경 쓰이실 땐 오답노트 한 장 더 넘겨보시는 것도 방법입니다.`,
+      `결과보다 지금 하시는 과정에 집중해보시는 게 어떨까요.`,
+    ]},
+];
+const DEFAULT_LINES = [
+  `그 말씀이 지금 D-{DDAY}일 남은 상황이랑 무슨 상관인지 모르겠네요.`,
+  `네, 그러시군요. 근데 그게 지금 저한테 왜 필요한 말씀인가요?`,
+  `말씀은 잘 들었는데, 딱히 궁금하진 않네요. 오늘 하실 일이나 말씀해주시죠.`,
+  `그 얘기 하실 시간에 책 한 장이라도 더 넘기시는 게 나을 것 같은데요.`,
+  `지금 그런 말씀 하고 계실 때가 아닐 텐데요.`,
+];
+
+function enableFreeChat(){
+  freeChatMode = true;
+  inputRow.classList.remove('hidden');
+  textInput.focus();
+}
+
+function pickResponse(userText){
+  const lower = userText.toLowerCase();
+  for(const entry of KEYWORD_RESPONSES){
+    if(entry.kws.some(k => userText.includes(k))){
+      return entry.lines[Math.floor(Math.random()*entry.lines.length)];
+    }
+  }
+  return DEFAULT_LINES[Math.floor(Math.random()*DEFAULT_LINES.length)];
+}
+
+/* ---------------- 오늘 목표 달성도 (목표시간 대비 실제시간 자동계산) ---------------- */
+function getTodayTargetHours(state){
+  const weekday = (new Date().getDay() + 6) % 7;
+  const sum = state.blocks
+    .filter(b => b.day === weekday)
+    .reduce((s,b) => s + b.duration, 0);
+  if(sum > 0) return sum;
+  const v = computeVerdictSafe();
+  return (v && v.target) ? v.target : 6;
+}
+
+const ACHIEVEMENT_PRAISE_CLEAN = [
+  `오늘 목표, 거의 다 채우셨네요. 오늘 하루는 진짜 고생 많으셨습니다.`,
+  `이 정도면 완벽하네요. 오늘만큼은 편히 쉬셔도 될 것 같아요.`,
+  `계획하신 만큼 다 해내셨네요. 잘하셨습니다.`,
+];
+const ACHIEVEMENT_PRAISE_LIGHT_JAB = [
+  `이 정도면 잘하신 편이네요. 근데 조금만 더 하셨으면 완벽했을 것 같은데요.`,
+  `꽤 채우셨네요. 의외로 오늘은 좀 하셨나 보네요.`,
+  `나쁘지 않습니다. 다만 목표까지 살짝 아쉽긴 하네요.`,
+];
+const ACHIEVEMENT_MILD_JAB = [
+  `목표 대비 반 정도라... 나머지 반은 어디로 가신 건가요.`,
+  `절반이면 절반의 결과만 나온다는 뜻이겠죠.`,
+  `이 정도면 계획을 세운 의미가 좀 없어지는 것 같은데요.`,
+];
+const ACHIEVEMENT_STRONG_JAB = [
+  `이 정도면... 계획은 왜 세우셨나 싶네요.`,
+  `오늘 목표, 거의 못 채우신 거나 마찬가지네요. 내일은 좀 다르길 바라겠습니다.`,
+  `세우신 계획과 실제 결과가 너무 다른데요. 내일은 좀 지켜봐야겠어요.`,
+];
+
+function getAchievementResponse(pct){
+  let pool, tag;
+  if(pct >= 90){ pool = ACHIEVEMENT_PRAISE_CLEAN; tag = '칭찬'; }
+  else if(pct >= 70){ pool = ACHIEVEMENT_PRAISE_LIGHT_JAB; tag = '칭찬 반, 꼽 반'; }
+  else if(pct >= 40){ pool = ACHIEVEMENT_MILD_JAB; tag = '한마디'; }
+  else { pool = ACHIEVEMENT_STRONG_JAB; tag = '한마디'; }
+  return { line: pool[Math.floor(Math.random()*pool.length)], tag };
+}
+
+/* 채팅에서 "오늘 5시간 공부했어요" 같은 실제 공부시간 보고를 인식 */
+function parseActualHoursFromText(text){
+  let m = text.match(/순공(?:부시간)?\s*(?:은|는)?\s*(\d{1,2}(?:\.\d+)?)\s*시간/);
+  if(m) return parseFloat(m[1]);
+  m = text.match(/(\d{1,2}(?:\.\d+)?)\s*시간\s*(?:정도)?\s*(했|공부했|공부함|끝냈|했어요|했습니다|했어|채웠|채웠어요|채웠습니다)/);
+  if(m) return parseFloat(m[1]);
+  return null;
+}
+
+/* 채팅에서 "할 일 추가: OOO" / "할일 - OOO" 같은 오늘 할 일 등록을 인식 */
+function parseTaskAddFromText(text){
+  const m = text.match(/할\s*일\s*(?:추가)?\s*[:\-]\s*(.+)/) || text.match(/할\s*일\s*추가\s+(.+)/);
+  if(m && m[1].trim()) return m[1].trim();
+  return null;
+}
+
+function logHoursFromChat(hours){
+  const state = loadMgr();
+  const entry = ensureTodayEntry(state);
+  entry.hours = hours;
+
+  const tk = todayKey();
+  const yk = yesterdayKey();
+  if(state.lastLoggedDate === tk){
+    // 오늘 이미 기록함 -> 스트릭 유지, 값만 갱신
+  } else if(state.lastLoggedDate === yk){
+    state.streak = (state.streak || 0) + 1;
+  } else {
+    state.streak = 1;
+  }
+  state.lastLoggedDate = tk;
+
+  const target = getTodayTargetHours(state);
+  const pct = target > 0 ? Math.round((hours / target) * 100) : 0;
+  entry.achievement = pct;
+  const { line, tag } = getAchievementResponse(pct);
+  entry.feedbackLine = line;
+  saveMgr(state);
+
+  showTyping(()=>{
+    pushMessage('bot', `오늘 목표 ${target}시간 중 ${hours}시간, 달성률 ${pct}%네요. ${line}`, tag);
+  }, 450);
+}
+
+function addTaskFromChat(text){
+  const state = loadMgr();
+  const entry = ensureTodayEntry(state);
+  entry.tasks.push({ id: Date.now()+Math.floor(Math.random()*1000), text, done:false });
+  saveMgr(state);
+  showTyping(()=>{
+    pushMessage('bot', `"${text}" 오늘 할 일에 추가했습니다. '오늘 관리' 탭에서 확인해주세요.`, '할일 등록');
+  }, 400);
+}
+
+/* ---------------- 입력 카테고리 ---------------- */
+let activeCategory = null;
+const CATEGORY_PLACEHOLDERS = {
+  schedule: '예: 7월15일 모의고사 (월까지 말하면 정확해요)',
+  plan: '예: 수학 2시간, 영어 1시간',
+  task: '예: 영어단어 외우기',
+  report: '예: 5 또는 5시간',
+};
+
+function setCategory(cat){
+  activeCategory = cat;
+  document.querySelectorAll('.cat-btn').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.cat === (cat || ''));
+  });
+  textInput.placeholder = cat ? CATEGORY_PLACEHOLDERS[cat] : '편하게 말씀해주세요';
+  textInput.focus();
+}
+
+function handleCategoryInput(cat, val){
+  if(cat === 'schedule'){
+    const dateEvent = parseDateEventFromText(val);
+    if(dateEvent){
+      addSpecialEvent(dateEvent.date, dateEvent.text);
+      showTyping(()=>{
+        pushMessage('bot', `${dateEvent.date} — "${dateEvent.text}" 특별 일정으로 등록했습니다.`, '일정 등록');
+      }, 450);
+    } else {
+      showTyping(()=>{
+        pushMessage('bot', `날짜를 못 알아봤어요. "7월15일 모의고사"처럼 말씀해주시겠어요?`, '일정 등록');
+      }, 400);
+    }
+    return;
+  }
+
+  if(cat === 'plan'){
+    const found = parseSubjectsFromText(val);
+    if(found.length){
+      found.forEach(f => addOrUpdateSubject(f.name, f.hours));
+      const names = found.map(f=>`${f.name} ${f.hours}시간`).join(', ');
+      showTyping(()=>{
+        pushMessage('bot', `${names} 계획 잘 등록했습니다. '오늘 관리' 탭에서 캘린더에 배치해주세요.`, '계획 등록');
+      }, 450);
+    } else {
+      showTyping(()=>{
+        pushMessage('bot', `과목명과 시간을 못 알아봤어요. "수학 2시간"처럼 말씀해주시겠어요?`, '계획 등록');
+      }, 400);
+    }
+    return;
+  }
+
+  if(cat === 'task'){
+    if(val){
+      addTaskFromChat(val);
+    }
+    return;
+  }
+
+  if(cat === 'report'){
+    const m = val.match(/(\d{1,2}(?:\.\d+)?)/);
+    if(m){
+      logHoursFromChat(parseFloat(m[1]));
+    } else {
+      showTyping(()=>{
+        pushMessage('bot', `숫자로 몇 시간이었는지 말씀해주시면 계산해드릴게요.`, '오늘의 기록');
+      }, 400);
+    }
+    return;
+  }
+}
+
+function sendFreeText(){
+  const val = textInput.value.trim();
+  if(!val) return;
+  pushMessage('user', escapeHtml(val));
+  textInput.value = '';
+
+  if(awaitingName){
+    const name = val.replace(/님$/, '').trim();
+    localStorage.setItem(USER_NAME_KEY, name);
+    awaitingName = false;
+    greetAndAskSchedule(name);
+    return;
+  }
+
+  if(awaitingHoursAnswer){
+    awaitingHoursAnswer = false;
+    const dateEventCheck = parseDateEventFromText(val);
+    const taskCheck = parseTaskAddFromText(val);
+    const subjCheck = parseSubjectsFromText(val);
+
+    if(dateEventCheck){
+      addSpecialEvent(dateEventCheck.date, dateEventCheck.text);
+      showTyping(()=>{
+        pushMessage('bot', `${dateEventCheck.date} — "${dateEventCheck.text}" 특별 일정으로 등록했습니다. 그런데 오늘 순공부시간은 아직 못 들었네요. 몇 시간 정도 되셨나요?`, '일정 등록');
+      }, 450);
+      return;
+    }
+    if(taskCheck){
+      addTaskFromChat(taskCheck);
+      setTimeout(()=>{
+        showTyping(()=>{
+          pushMessage('bot', `참고로 오늘 순공부시간은 아직 안 여쭤봤네요. 몇 시간 정도 되셨나요?`, '오늘의 기록');
+        }, 400);
+      }, 500);
+      return;
+    }
+    if(subjCheck.length){
+      subjCheck.forEach(f => addOrUpdateSubject(f.name, f.hours));
+      const names = subjCheck.map(f=>`${f.name} ${f.hours}시간`).join(', ');
+      showTyping(()=>{
+        pushMessage('bot', `${names} 계획으로 등록했습니다. 그런데 오늘 순공부시간은 아직 못 들었어요. 몇 시간 정도 되셨나요?`, '계획 등록');
+      }, 450);
+      return;
+    }
+
+    let hoursVal = parseActualHoursFromText(val);
+    if(hoursVal === null){
+      const bare = val.trim().match(/^(\d{1,2}(?:\.\d+)?)\s*(시간)?\s*(정도)?\s*(이에요|이요|요|입니다|임)?\.?$/);
+      if(bare) hoursVal = parseFloat(bare[1]);
+    }
+    if(hoursVal !== null){
+      logHoursFromChat(hoursVal);
+    } else {
+      showTyping(()=>{
+        pushMessage('bot', `숫자로 몇 시간이었는지 말씀해주시면 계산해드릴게요.`, '오늘의 기록');
+      }, 400);
+    }
+    return;
+  }
+
+  if(awaitingScheduleAnswer){
+    awaitingScheduleAnswer = false;
+    localStorage.setItem(SCHEDULE_ASKED_KEY, todayKey());
+    const scheduleFound = parseSubjectsFromText(val);
+    if(scheduleFound.length){
+      scheduleFound.forEach(f => addOrUpdateSubject(f.name, f.hours));
+      const names = scheduleFound.map(f=>`${f.name} ${f.hours}시간`).join(', ');
+      showTyping(()=>{
+        pushMessage('bot', `${names} 계획 잘 받았습니다. 말씀하신 만큼은 지키실 거라 믿어보겠습니다.`, '오늘의 계획');
+        setTimeout(()=> askQuestion(0), 500);
+      }, 450);
+    } else {
+      showTyping(()=>{
+        pushMessage('bot', `계획이 딱히 없으신가 보네요. 일단 지금 상태부터 확인해보겠습니다.`, '오늘의 계획');
+        setTimeout(()=> askQuestion(0), 500);
+      }, 450);
+    }
+    return;
+  }
+
+  if(activeCategory){
+    handleCategoryInput(activeCategory, val);
+    return;
+  }
+
+  const actualHours = parseActualHoursFromText(val);
+  if(actualHours !== null){
+    logHoursFromChat(actualHours);
+    return;
+  }
+
+  const bareNumber = val.trim().match(/^(\d{1,2}(?:\.\d+)?)\s*(시간)?\s*(정도)?\s*(이에요|이요|요|입니다|임)?\.?$/);
+  if(bareNumber){
+    logHoursFromChat(parseFloat(bareNumber[1]));
+    return;
+  }
+
+  const taskText = parseTaskAddFromText(val);
+  if(taskText){
+    addTaskFromChat(taskText);
+    return;
+  }
+
+  const found = parseSubjectsFromText(val);
+  if(found.length){
+    found.forEach(f => addOrUpdateSubject(f.name, f.hours));
+    showTyping(()=>{
+      const names = found.map(f=>`${f.name} ${f.hours}시간`).join(', ');
+      pushMessage('bot', `${names} 계획 잘 등록했습니다. '오늘 관리' 탭 열어서 캘린더에 직접 배치해주세요.`, '계획 등록');
+    }, 450);
+    return;
+  }
+
+  const dateEvent = parseDateEventFromText(val);
+  if(dateEvent){
+    addSpecialEvent(dateEvent.date, dateEvent.text);
+    showTyping(()=>{
+      pushMessage('bot', `${dateEvent.date} — "${dateEvent.text}" 특별 일정으로 등록했습니다. '오늘 관리' 탭에서 확인해주세요.`, '일정 등록');
+    }, 450);
+    return;
+  }
+
+  showTyping(()=>{
+    pushMessage('bot', fillTemplate(pickResponse(val), computeVerdictSafe()), '경고');
+  }, 500);
+}
+function computeVerdictSafe(){
+  try{ return computeVerdict(); } catch(e){ return {deficit:0,target:0,actual:0}; }
+}
+
+textInput.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') sendFreeText();
+});
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+/* ---------------- 아침 알림 ---------------- */
+// 중요: 이건 브라우저 알림 권한 + 로컬 저장 기반이라, 앱을 완전히 닫아둔 상태에서
+// "매일 아침 알아서" 오는 진짜 푸시는 아님. 서버(FCM/OneSignal 등) 없이는
+// 브라우저 탭이 열려있거나, 최소 하루 한 번은 앱을 열어야 알림이 뜬다.
+// -> 이 코드는 "오늘 처음 열었을 때" 바로 D-day 알림을 띄우는 방식으로 동작.
+const notifyBtn = document.getElementById('notifyBtn');
+
+function todayStr(){
+  const d = new Date();
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+}
+
+function updateNotifyBtnUI(){
+  if(!('Notification' in window)){
+    notifyBtn.textContent = '🔔 알림 불가';
+    notifyBtn.disabled = true;
+    return;
+  }
+  if(Notification.permission === 'granted'){
+    notifyBtn.textContent = '🔔 알림 ON';
+    notifyBtn.classList.add('on');
+  } else {
+    notifyBtn.textContent = '🔔 알림';
+    notifyBtn.classList.remove('on');
+  }
+}
+
+function enableMorningNotify(){
+  if(!('Notification' in window)){
+    alert('이 브라우저는 알림을 지원하지 않아.');
+    return;
+  }
+  Notification.requestPermission().then(perm=>{
+    updateNotifyBtnUI();
+    if(perm === 'granted'){
+      fireMorningNotifyIfNeeded(true);
+      registerPushSubscription();
+    } else {
+      alert('알림 권한을 허용해주셔야 아침 D-day 알림을 받으실 수 있습니다.');
+    }
+  });
+}
+
+/* ---------------- 알림 표시 (모바일 크롬은 new Notification()을 막아둬서 SW 경유 필수) ---------------- */
+async function showAppNotification(title, options){
+  if(!('Notification' in window) || Notification.permission !== 'granted') return;
+  try{
+    if('serviceWorker' in navigator){
+      let reg = await navigator.serviceWorker.getRegistration();
+      if(!reg){
+        reg = await navigator.serviceWorker.register('./service-worker.js');
+      }
+      await reg.showNotification(title, options);
+      return;
+    }
+    new Notification(title, options);
+  }catch(e){
+    console.warn('알림 표시 실패:', e);
+  }
+}
+
+function fireMorningNotifyIfNeeded(force){
+  if(!('Notification' in window) || Notification.permission !== 'granted') return;
+  const last = localStorage.getItem('lastNotifiedDate');
+  const today = todayStr();
+  if(force || last !== today){
+    showAppNotification(`D-${DDAY > 0 ? DDAY : 0} 수능`, {
+      body: `수능이 ${DDAY}일 남았습니다. 눈 뜨셨으면 바로 시작하시죠.`,
+    });
+    localStorage.setItem('lastNotifiedDate', today);
+  }
+  checkSpecialEventNotifications(force);
+}
+
+/* 오늘 날짜에 등록된 특별 일정이 있으면 알림 발송 (하루 1회) */
+function checkSpecialEventNotifications(force){
+  if(!('Notification' in window) || Notification.permission !== 'granted') return;
+  const state = loadMgr();
+  const tk = todayKey();
+  const todaysEvents = (state.specialEvents || []).filter(e => e.date === tk);
+  if(!todaysEvents.length) return;
+  const notifKey = `specialEventNotified_${tk}`;
+  if(!force && localStorage.getItem(notifKey)) return;
+  const listText = todaysEvents.map(e => e.text).join(', ');
+  showAppNotification(`오늘 일정 있음`, {
+    body: `${listText} — 잊지 않으셨죠?`,
+  });
+  localStorage.setItem(notifKey, '1');
+}
+
+if('Notification' in window && Notification.permission === 'granted'){
+  fireMorningNotifyIfNeeded(false);
+}
+updateNotifyBtnUI();
+
+/* ---------------- 탭 전환 ---------------- */
+function switchView(view){
+  document.getElementById('chatView').classList.toggle('view-hidden', view !== 'chat');
+  document.getElementById('managerView').classList.toggle('view-hidden', view !== 'manager');
+  document.getElementById('tabChat').classList.toggle('active', view === 'chat');
+  document.getElementById('tabManager').classList.toggle('active', view === 'manager');
+  if(view === 'manager') renderManager();
+}
+
+/* ---------------- 학습 매니저 (개인용, localStorage 저장) ---------------- */
+const MGR_KEY = 'gyeonggojang_manager_v1';
+
+function dateKey(d){
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function todayKey(){ return dateKey(new Date()); }
+function yesterdayKey(){
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return dateKey(d);
+}
+
+function loadMgr(){
+  try{
+    const raw = localStorage.getItem(MGR_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      parsed.subjects = parsed.subjects || [];
+      parsed.blocks = parsed.blocks || [];
+      parsed.specialEvents = parsed.specialEvents || [];
+      return parsed;
+    }
+  }catch(e){}
+  return { logs: {}, streak: 0, lastLoggedDate: null, subjects: [], blocks: [], specialEvents: [] };
+}
+function saveMgr(state){
+  localStorage.setItem(MGR_KEY, JSON.stringify(state));
+  syncStateToServer(state);
+}
+
+function ensureTodayEntry(state){
+  const tk = todayKey();
+  if(!state.logs[tk]) state.logs[tk] = { hours: null, tasks: [] };
+  return state.logs[tk];
+}
+
+function toggleTask(id){
+  const state = loadMgr();
+  const entry = ensureTodayEntry(state);
+  const t = entry.tasks.find(x=>x.id === id);
+  if(t) t.done = !t.done;
+  saveMgr(state);
+  renderManager();
+}
+function deleteTask(id){
+  const state = loadMgr();
+  const entry = ensureTodayEntry(state);
+  entry.tasks = entry.tasks.filter(x=>x.id !== id);
+  saveMgr(state);
+  renderManager();
+}
+
+function renderTaskList(entry){
+  const ul = document.getElementById('taskList');
+  ul.innerHTML = '';
+  if(!entry.tasks.length){
+    ul.innerHTML = '<li class="special-empty" style="border:none;">아직 등록된 할 일 없음.</li>';
+    return;
+  }
+  entry.tasks.forEach(t=>{
+    const li = document.createElement('li');
+    if(t.done) li.classList.add('done');
+    li.innerHTML = `
+      <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask(${t.id})">
+      <span class="task-text">${escapeHtml(t.text)}</span>
+      <button onclick="deleteTask(${t.id})">삭제</button>
+    `;
+    ul.appendChild(li);
+  });
+}
+
+function renderTodayStat(state){
+  const box = document.getElementById('todayStatBox');
+  const entry = ensureTodayEntry(state);
+  const target = getTodayTargetHours(state);
+  if(entry.hours == null){
+    box.innerHTML = `<div class="v-row"><span>목표</span><span>${target}시간</span></div><div class="v-row"><span>실제 기록</span><span>아직 없음</span></div>`;
+    return;
+  }
+  box.innerHTML = `
+    <div class="v-row"><span>목표</span><span>${target}시간</span></div>
+    <div class="v-row"><span>실제</span><span>${entry.hours}시간</span></div>
+    <div class="v-row"><span>달성률</span><span>${entry.achievement != null ? entry.achievement + '%' : '-'}</span></div>
+  `;
+  if(entry.feedbackLine){
+    document.getElementById('managerFeedback').textContent = entry.feedbackLine;
+  }
+}
+
+function getShortComment(pct){
+  if(pct >= 90) return ['완벽','훌륭함','잘하셨음'][Math.floor(Math.random()*3)];
+  if(pct >= 70) return ['잘함','괜찮음','나쁘지 않음'][Math.floor(Math.random()*3)];
+  if(pct >= 40) return ['아쉬움','조금 부족','애매함'][Math.floor(Math.random()*3)];
+  return ['많이 부족','부족함','아쉬웠음'][Math.floor(Math.random()*3)];
+}
+
+function renderHistory(state){
+  const wrap = document.getElementById('historyList');
+  wrap.innerHTML = '';
+  const days = [];
+  for(let i=6; i>=0; i--){
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    days.push(d);
+  }
+  days.forEach(d=>{
+    const key = dateKey(d);
+    const entry = state.logs[key];
+    const hours = entry && entry.hours != null ? entry.hours : null;
+    const label = `${d.getMonth()+1}/${d.getDate()}`;
+    const row = document.createElement('div');
+    row.className = 'hist-row';
+    const barWidth = hours != null ? Math.min(100, hours * 12) : 0;
+    let comment = '-';
+    if(hours != null){
+      const weekday = (d.getDay() + 6) % 7;
+      const target = state.blocks.filter(b=>b.day===weekday).reduce((s,b)=>s+b.duration,0) || (computeVerdictSafe().target || 6);
+      const pct = Math.round((hours/target)*100);
+      comment = `${pct}% · ${getShortComment(pct)}`;
+    }
+    row.innerHTML = `
+      <span class="hist-date">${label}</span>
+      <span class="hist-bar" style="width:${barWidth}px"></span>
+      <span class="hist-val">${hours != null ? hours + 'h' : '-'}</span>
+      <span class="hist-comment">${comment}</span>
+    `;
+    wrap.appendChild(row);
+  });
+}
+
+function renderManager(){
+  const state = loadMgr();
+  const entry = ensureTodayEntry(state);
+  saveMgr(state);
+  document.getElementById('streakNum').textContent = state.streak || 0;
+  document.getElementById('mgrDday').textContent = DDAY > 0 ? 'D-' + DDAY : (DDAY === 0 ? 'D-DAY' : '종료');
+  renderTaskList(entry);
+  renderTodayStat(state);
+  renderHistory(state);
+  renderSubjectPalette(state);
+  renderCalendar(state);
+  renderSpecialEvents(state);
+}
+
+/* ---------------- 과목 (경고장 채팅에서 입력됨) ---------------- */
+const SUBJECT_COLORS = ['#5c6f8a','#a67c52','#6b7f6b','#8a5c6f','#7c7c3f','#4f6b6b','#946b3f','#5c7c8a'];
+
+function addOrUpdateSubject(name, hours){
+  const state = loadMgr();
+  let subj = state.subjects.find(s=>s.name === name);
+  if(subj){
+    subj.plannedHours = hours;
+  } else {
+    subj = {
+      id: Date.now() + Math.floor(Math.random()*1000),
+      name,
+      color: SUBJECT_COLORS[state.subjects.length % SUBJECT_COLORS.length],
+      plannedHours: hours,
+    };
+    state.subjects.push(subj);
+  }
+  saveMgr(state);
+  return subj;
+}
+
+const SUBJECT_STOPWORDS = ['오늘','내일','모레','어제','지금','매일','전체','총','오전','오후','저녁','아침','순공','대략','약','거의','딱'];
+
+function parseSubjectsFromText(text){
+  const re = /([가-힣a-zA-Z]{1,12}?)\s*(\d+(?:\.\d+)?)\s*시간/g;
+  const found = [];
+  let m;
+  while((m = re.exec(text)) !== null){
+    const name = m[1].trim();
+    const hours = parseFloat(m[2]);
+    if(name && !isNaN(hours) && !SUBJECT_STOPWORDS.includes(name)) found.push({ name, hours });
+  }
+  return found;
+}
+
+/* ---------------- 주간 캘린더 ---------------- */
+const CELL_H = 22; // .cal-grid의 시간행 높이(px)와 맞춰야 함
+const DAY_LABELS = ['월','화','수','목','금','토','일'];
+
+function mondayOfThisWeek(){
+  const d = new Date();
+  const offset = (d.getDay() + 6) % 7; // 월요일=0
+  d.setDate(d.getDate() - offset);
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+function renderSubjectPalette(state){
+  const wrap = document.getElementById('subjectPalette');
+  wrap.innerHTML = '';
+  if(!state.subjects.length){
+    wrap.innerHTML = '<div class="subject-empty">아직 등록된 과목 없음. 경고장 탭에서 "수학 2시간" 처럼 말해봐.</div>';
+    return;
+  }
+  state.subjects.forEach(s=>{
+    const chip = document.createElement('div');
+    chip.className = 'subject-chip';
+    chip.style.background = s.color;
+    chip.dataset.subjectId = s.id;
+    chip.innerHTML = `<span class="subj-label">${escapeHtml(s.name)} ${s.plannedHours}h</span><span class="subj-del">✕</span>`;
+    attachChipDrag(chip, s);
+    const delBtn = chip.querySelector('.subj-del');
+    delBtn.addEventListener('pointerdown', e => e.stopPropagation());
+    delBtn.addEventListener('click', e=>{
+      e.stopPropagation();
+      deleteSubject(s.id);
+    });
+    wrap.appendChild(chip);
+  });
+}
+
+function deleteSubject(subjectId){
+  const state = loadMgr();
+  state.subjects = state.subjects.filter(s => s.id !== subjectId);
+  state.blocks = state.blocks.filter(b => b.subjectId !== subjectId);
+  saveMgr(state);
+  renderManager();
+}
+
+function renderCalendar(state){
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+
+  const corner = document.createElement('div');
+  corner.className = 'cal-corner';
+  grid.appendChild(corner);
+
+  const monday = mondayOfThisWeek();
+  const now = new Date();
+  const todayEntry = ensureTodayEntry(state);
+  for(let d=0; d<7; d++){
+    const dayDate = new Date(monday);
+    dayDate.setDate(monday.getDate() + d);
+    const isToday = dateKey(dayDate) === dateKey(now);
+    const label = document.createElement('div');
+    label.className = 'cal-daylabel' + (isToday ? ' today' : '');
+    label.style.gridColumn = d + 2;
+
+    const dayTarget = state.blocks.filter(b => b.day === d).reduce((s,b) => s + b.duration, 0);
+    let statHtml;
+    if(isToday){
+      const doneCount = todayEntry.tasks.filter(t=>t.done).length;
+      const totalCount = todayEntry.tasks.length;
+      const target = dayTarget > 0 ? dayTarget : getTodayTargetHours(state);
+      const hoursTxt = todayEntry.hours != null ? `${todayEntry.hours}/${target}h` : `-/${target}h`;
+      const pctTxt = todayEntry.achievement != null ? ` · ${todayEntry.achievement}%` : '';
+      statHtml = `<span class="cal-daystat">${hoursTxt}${pctTxt} · 할일 ${doneCount}/${totalCount}</span>`;
+    } else {
+      statHtml = `<span class="cal-daystat">목표 ${dayTarget}h</span>`;
+    }
+    label.innerHTML = `${DAY_LABELS[d]} ${dayDate.getMonth()+1}/${dayDate.getDate()}${statHtml}`;
+    grid.appendChild(label);
+  }
+
+  const todayWeekday = (now.getDay() + 6) % 7;
+  for(let h=0; h<24; h++){
+    const hl = document.createElement('div');
+    hl.className = 'hour-label';
+    hl.style.gridRow = h + 2;
+    hl.textContent = h;
+    grid.appendChild(hl);
+    for(let d=0; d<7; d++){
+      const cell = document.createElement('div');
+      cell.className = 'cal-cell' + (d === todayWeekday ? ' today-col' : '');
+      cell.style.gridColumn = d + 2;
+      cell.style.gridRow = h + 2;
+      cell.dataset.day = d;
+      cell.dataset.hour = h;
+      grid.appendChild(cell);
+    }
+  }
+
+  state.blocks.forEach(block=>{
+    const subj = state.subjects.find(s=>s.id === block.subjectId);
+    if(!subj) return;
+    const el = document.createElement('div');
+    el.className = 'cal-block';
+    el.style.gridColumn = block.day + 2;
+    el.style.gridRow = `${block.start + 2} / ${block.start + 2 + block.duration}`;
+    el.style.background = subj.color;
+    el.dataset.blockId = block.id;
+    el.innerHTML = `${escapeHtml(subj.name)} ${block.duration}h<span class="del-x">✕</span><div class="resize-handle"></div>`;
+    el.querySelector('.del-x').addEventListener('pointerdown', e=> e.stopPropagation());
+    el.querySelector('.del-x').addEventListener('click', e=>{
+      e.stopPropagation();
+      const st = loadMgr();
+      st.blocks = st.blocks.filter(b=>b.id !== block.id);
+      saveMgr(st);
+      renderCalendar(st);
+      renderTodayStat(st);
+    });
+    attachBlockMove(el, block);
+    attachBlockResize(el.querySelector('.resize-handle'), el, block);
+    grid.appendChild(el);
+  });
+}
+
+function refreshCalendarAndStats(state){
+  renderCalendar(state);
+  renderTodayStat(state);
+}
+
+function cellUnderPoint(x, y){
+  const el = document.elementFromPoint(x, y);
+  if(!el) return null;
+  return el.classList.contains('cal-cell') ? el : null;
+}
+
+function createGhost(text, color){
+  const ghost = document.createElement('div');
+  ghost.className = 'drag-ghost';
+  ghost.style.background = color;
+  ghost.textContent = text;
+  document.body.appendChild(ghost);
+  return ghost;
+}
+
+/* 과목 칩 -> 캘린더에 새 블록 생성 */
+function hasOverlap(state, day, start, duration, excludeBlockId){
+  const end = start + duration;
+  return state.blocks.some(b=>{
+    if(b.day !== day) return false;
+    if(excludeBlockId != null && b.id === excludeBlockId) return false;
+    const bEnd = b.start + b.duration;
+    return start < bEnd && end > b.start;
+  });
+}
+
+function nextBlockStart(state, day, afterStart, excludeBlockId){
+  let next = 24;
+  state.blocks.forEach(b=>{
+    if(b.day !== day) return;
+    if(excludeBlockId != null && b.id === excludeBlockId) return;
+    if(b.start > afterStart && b.start < next) next = b.start;
+  });
+  return next;
+}
+
+function attachChipDrag(chip, subject){
+  chip.addEventListener('pointerdown', (e)=>{
+    e.preventDefault();
+    const ghost = createGhost(`${subject.name} ${subject.plannedHours}h`, subject.color);
+    moveGhost(ghost, e.clientX, e.clientY);
+    let lastCell = null;
+
+    function onMove(ev){
+      moveGhost(ghost, ev.clientX, ev.clientY);
+      document.querySelectorAll('.cal-cell.drop-hover').forEach(c=>c.classList.remove('drop-hover'));
+      const cell = cellUnderPoint(ev.clientX, ev.clientY);
+      lastCell = cell;
+      if(cell) cell.classList.add('drop-hover');
+    }
+    function onUp(ev){
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+      ghost.remove();
+      document.querySelectorAll('.cal-cell.drop-hover').forEach(c=>c.classList.remove('drop-hover'));
+      if(lastCell){
+        const day = parseInt(lastCell.dataset.day);
+        const hour = parseInt(lastCell.dataset.hour);
+        const state = loadMgr();
+        if(hasOverlap(state, day, hour, 1, null)){
+          showTyping(()=>{
+            pushMessage('bot', `그 시간엔 이미 다른 과목이 배치되어 있어요. 빈 칸에 놓아주시겠어요?`, '배치 실패');
+          }, 300);
+          return;
+        }
+        const maxDur = Math.min(24 - hour, nextBlockStart(state, day, hour, null) - hour);
+        const dur = Math.max(1, Math.min(Math.round(subject.plannedHours) || 1, maxDur));
+        state.blocks.push({ id: Date.now()+Math.floor(Math.random()*1000), subjectId: subject.id, day, start: hour, duration: dur });
+        saveMgr(state);
+        refreshCalendarAndStats(state);
+      }
+    }
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+  });
+}
+
+function moveGhost(ghost, x, y){
+  ghost.style.left = (x + 10) + 'px';
+  ghost.style.top = (y + 10) + 'px';
+}
+
+/* 배치된 블록 -> 다른 요일/시간으로 이동 */
+function attachBlockMove(el, block){
+  el.addEventListener('pointerdown', (e)=>{
+    if(e.target.classList.contains('resize-handle') || e.target.classList.contains('del-x')) return;
+    e.preventDefault();
+    const subj = loadMgr().subjects.find(s=>s.id === block.subjectId);
+    const ghost = createGhost(el.textContent.replace('✕',''), subj ? subj.color : '#888');
+    moveGhost(ghost, e.clientX, e.clientY);
+    let lastCell = null;
+
+    function onMove(ev){
+      moveGhost(ghost, ev.clientX, ev.clientY);
+      document.querySelectorAll('.cal-cell.drop-hover').forEach(c=>c.classList.remove('drop-hover'));
+      const cell = cellUnderPoint(ev.clientX, ev.clientY);
+      lastCell = cell;
+      if(cell) cell.classList.add('drop-hover');
+    }
+    function onUp(){
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+      ghost.remove();
+      document.querySelectorAll('.cal-cell.drop-hover').forEach(c=>c.classList.remove('drop-hover'));
+      if(lastCell){
+        const day = parseInt(lastCell.dataset.day);
+        const hour = parseInt(lastCell.dataset.hour);
+        const state = loadMgr();
+        const b = state.blocks.find(x=>x.id === block.id);
+        if(b){
+          const newStart = Math.min(hour, 24 - b.duration);
+          if(hasOverlap(state, day, newStart, b.duration, b.id)){
+            showTyping(()=>{
+              pushMessage('bot', `그 자리엔 이미 다른 과목이 있어서 옮길 수 없어요.`, '이동 실패');
+            }, 300);
+            return;
+          }
+          b.day = day;
+          b.start = newStart;
+          saveMgr(state);
+          refreshCalendarAndStats(state);
+        }
+      }
+    }
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+  });
+}
+
+/* 블록 하단 모서리 드래그 -> 시간 늘리기/줄이기 */
+function attachBlockResize(handle, blockEl, block){
+  handle.addEventListener('pointerdown', (e)=>{
+    e.stopPropagation();
+    e.preventDefault();
+    const startY = e.clientY;
+    const initialDuration = block.duration;
+    const state0 = loadMgr();
+    const maxDur = Math.min(24 - block.start, nextBlockStart(state0, block.day, block.start, block.id) - block.start);
+
+    function onMove(ev){
+      const deltaRows = Math.round((ev.clientY - startY) / CELL_H);
+      let newDur = Math.max(1, Math.min(initialDuration + deltaRows, maxDur));
+      blockEl.style.gridRow = `${block.start + 2} / ${block.start + 2 + newDur}`;
+      blockEl.dataset.pendingDuration = newDur;
+    }
+    function onUp(){
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+      const newDur = parseInt(blockEl.dataset.pendingDuration || initialDuration);
+      const state = loadMgr();
+      const b = state.blocks.find(x=>x.id === block.id);
+      if(b){
+        b.duration = newDur;
+        saveMgr(state);
+        refreshCalendarAndStats(state);
+      }
+    }
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+  });
+}
+
+/* ---------------- 특별 일정 (날짜 지정 이벤트) ---------------- */
+function addSpecialEvent(date, text){
+  const state = loadMgr();
+  state.specialEvents.push({ id: Date.now()+Math.floor(Math.random()*1000), date, text });
+  saveMgr(state);
+  return state;
+}
+
+function deleteSpecialEvent(id){
+  const state = loadMgr();
+  state.specialEvents = state.specialEvents.filter(e=>e.id !== id);
+  saveMgr(state);
+  renderManager();
+}
+
+function renderSpecialEvents(state){
+  const wrap = document.getElementById('specialList');
+  wrap.innerHTML = '';
+  const events = [...state.specialEvents].sort((a,b)=> a.date.localeCompare(b.date));
+  if(!events.length){
+    wrap.innerHTML = '<div class="special-empty">등록된 특별 일정 없음.</div>';
+    return;
+  }
+  events.forEach(ev=>{
+    const row = document.createElement('div');
+    row.className = 'special-row';
+    row.innerHTML = `
+      <span class="sp-date">${ev.date}</span>
+      <span class="sp-text">${escapeHtml(ev.text)}</span>
+      <button class="sp-del" onclick="deleteSpecialEvent(${ev.id})">삭제</button>
+    `;
+    wrap.appendChild(row);
+  });
+}
+
+function parseDateEventFromText(text){
+  const relMap = { '오늘':0, '내일':1, '모레':2 };
+  let m = text.match(/(오늘|내일|모레)\s*(?:에는|에)?\s*(.+)/);
+  if(m && m[2].trim()){
+    const d = new Date();
+    d.setDate(d.getDate() + relMap[m[1]]);
+    return { date: dateKey(d), text: m[2].trim() };
+  }
+  m = text.match(/(\d{1,2})\s*월\s*(\d{1,2})\s*일\s*(?:에는|에)?\s*(.+)/);
+  if(m && m[3].trim()){
+    const now = new Date();
+    const d = new Date(now.getFullYear(), parseInt(m[1]) - 1, parseInt(m[2]));
+    return { date: dateKey(d), text: m[3].trim() };
+  }
+  m = text.match(/(\d{1,2})\/(\d{1,2})\s+(.+)/);
+  if(m && m[3].trim()){
+    const now = new Date();
+    const d = new Date(now.getFullYear(), parseInt(m[1]) - 1, parseInt(m[2]));
+    return { date: dateKey(d), text: m[3].trim() };
+  }
+  m = text.match(/(\d{1,2})\s*일에\s*(.+)/);
+  if(m && m[2].trim()){
+    const day = parseInt(m[1]);
+    if(day >= 1 && day <= 31){
+      const now = new Date();
+      let d = new Date(now.getFullYear(), now.getMonth(), day);
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      if(d < todayStart){
+        d = new Date(now.getFullYear(), now.getMonth() + 1, day);
+      }
+      return { date: dateKey(d), text: m[2].trim() };
+    }
+  }
+  return null;
+}
+
+/* ---------------- 과목별 공부 종료 알림 ---------------- */
+// 탭/브라우저가 열려있는 동안 1분마다 체크. 완전히 꺼둔 상태에서는 못 울림 (서버 없는 구조의 한계).
+function checkBlockEndNotifications(){
+  if(!('Notification' in window) || Notification.permission !== 'granted') return;
+  const now = new Date();
+  if(now.getMinutes() !== 0) return; // 정각에만 체크 (블록 길이가 정시간 단위라)
+  const weekday = (now.getDay() + 6) % 7;
+  const hour = now.getHours();
+  const state = loadMgr();
+  const tk = todayKey();
+  state.blocks.forEach(b=>{
+    if(b.day !== weekday) return;
+    const subj = state.subjects.find(s=>s.id === b.subjectId);
+
+    // 시작 알림
+    if(b.start === hour){
+      const startKey = `blockStartNotified_${b.id}_${tk}`;
+      if(!localStorage.getItem(startKey)){
+        showAppNotification(`${subj ? subj.name : '공부'} 시작 시간`, {
+          body: `${subj ? subj.name : '공부'} ${b.duration}시간 시작할 시간입니다. 바로 앉으시죠.`,
+        });
+        localStorage.setItem(startKey, '1');
+      }
+    }
+
+    // 종료 알림
+    const endHour = b.start + b.duration;
+    if(endHour === hour){
+      const endKey = `blockEndNotified_${b.id}_${tk}`;
+      if(!localStorage.getItem(endKey)){
+        showAppNotification(`${subj ? subj.name : '공부'} 시간 종료`, {
+          body: `설정하신 ${b.duration}시간이 끝났습니다. 다음 계획대로 움직여주시겠어요?`,
+        });
+        localStorage.setItem(endKey, '1');
+      }
+    }
+  });
+}
+setInterval(checkBlockEndNotifications, 60 * 1000);
+checkBlockEndNotifications();
+
+/* ---------------- 시작 / 재시작 ---------------- */
+const USER_NAME_KEY = 'gyeonggojang_username';
+const SCHEDULE_ASKED_KEY = 'gyeonggojang_schedule_asked_date';
+let awaitingName = false;
+let awaitingScheduleAnswer = false;
+let awaitingHoursAnswer = false;
+
+function restart(){
+  answers = {}; stepIndex = 0; freeChatMode = false;
+  awaitingName = false; awaitingScheduleAnswer = false; awaitingHoursAnswer = false;
+  chatEl.innerHTML = '';
+  clearChoices();
+  boot();
+}
+
+function boot(){
+  const name = localStorage.getItem(USER_NAME_KEY);
+  if(!name){
+    showTyping(()=>{
+      pushMessage('bot', `안녕하세요. 저는 이 학교 생활지도부 소속 '경고장' 챗봇입니다. 내신이 끝났다고 방심하는 고3들의 기강을 다시 잡으러 왔습니다.`, '생활지도부');
+      setTimeout(()=>{
+        showTyping(()=>{
+          pushMessage('bot', `사용법 간단히 안내드릴게요.<br><br>
+· <b>경고장</b> 탭에서는 저랑 대화하면서 오늘 계획을 알려주시면 됩니다.<br>
+· 입력창 위 <b>[일정] [공부계획] [할일] [성과보고]</b> 버튼을 누르면 그 항목에 맞게 정확히 인식됩니다. (예: 공부계획 누르고 "수학 2시간", 성과보고 누르고 그냥 숫자만 입력)<br>
+· 아무 버튼도 안 누르면 자유롭게 말씀하셔도 알아서 인식하려고 시도합니다.<br>
+· <b>오늘 관리</b> 탭에서는 이번 주 캘린더에 과목을 드래그로 배치하고, 오늘 기록·할 일·특별 일정을 한눈에 볼 수 있어요.<br>
+· 우측 상단 <b>🔔 알림</b>을 켜두면 아침 D-day 알림, 과목 종료 알림, 오늘 일정 알림을 받을 수 있습니다.`, '사용법 안내');
+          setTimeout(()=>{
+            awaitingName = true;
+            showTyping(()=>{
+              pushMessage('bot', `시작하기 전에, 성함을 여쭤봐도 될까요?`, '생활지도부');
+            }, 400);
+          }, 600);
+        }, 500);
+      }, 700);
+    }, 400);
+  } else {
+    greetAndAskSchedule(name);
+  }
+}
+
+function greetAndAskSchedule(name){
+  const lastAsked = localStorage.getItem(SCHEDULE_ASKED_KEY);
+  const tk = todayKey();
+
+  if(lastAsked === tk){
+    showTyping(()=>{
+      pushMessage('bot', `${name}님, 다시 오셨네요. 오늘 계획, 당연히 다 지키고 계시겠죠?`, '생활지도부');
+      setTimeout(()=>{
+        showTyping(()=>{
+          pushMessage('bot', `오늘 순공부시간은 지금까지 몇 시간 정도 되셨나요?`, '오늘의 기록');
+          awaitingHoursAnswer = true;
+        }, 400);
+      }, 500);
+    }, 400);
+    return;
+  }
+
+  showTyping(()=>{
+    pushMessage('bot', `${name}님, 반갑습니다.`, '생활지도부');
+    setTimeout(()=>{
+      const todaysEvents = (loadMgr().specialEvents || []).filter(e => e.date === todayKey());
+      const proceedToSchedule = ()=>{
+        showTyping(()=>{
+          pushMessage('bot', `오늘은 어떤 과목을, 몇 시간 정도 공부하실 계획이신가요? (예: 수학 2시간, 영어 1시간)`, '오늘의 계획');
+          awaitingScheduleAnswer = true;
+        }, 400);
+      };
+      if(todaysEvents.length){
+        showTyping(()=>{
+          const listText = todaysEvents.map(e=>e.text).join(', ');
+          pushMessage('bot', `참고로 오늘 일정 있으시네요: ${listText}. 잊지 마세요.`, '오늘의 일정');
+          setTimeout(proceedToSchedule, 500);
+        }, 400);
+      } else {
+        proceedToSchedule();
+      }
+    }, 500);
+  }, 400);
+}
+
+boot();
+</script>
+</body>
+</html>
